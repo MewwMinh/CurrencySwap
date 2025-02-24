@@ -1,6 +1,5 @@
 import { useState, useEffect } from "react";
 import {
-  InputNumber,
   Select,
   Card,
   Typography,
@@ -10,6 +9,7 @@ import {
   Layout,
   Button,
   message,
+  Input,
 } from "antd";
 import axios from "axios";
 
@@ -41,24 +41,23 @@ const Converter = () => {
       .catch(() => setLoading(false));
   }, []);
 
-  // useEffect(() => {
-  //   if (isUpdating === "amount") {
-  //     setResult((amount * rates[selectedFrom]) / rates[selectedTo]);
-  //   } else if (isUpdating === "result") {
-  //     setAmount((result * rates[selectedTo]) / rates[selectedFrom]);
-  //   }
-  // }, [amount, selectedFrom, selectedTo, rates, isUpdating, result]);
-
   const handleConvert = () => {
-    if (!amount || isNaN(amount) || amount <= 0) {
-      message.error("Invalid number");
-      return;
+    if (isUpdating === "amount") {
+      const amountStr = String(amount);
+      if (/[^0-9.]/.test(amountStr)) {
+        message.error("Wrong type.");
+        return;
+      }
+      setResult((amount * rates[selectedFrom]) / rates[selectedTo]);
     }
-    if (!rates[selectedFrom] || !rates[selectedTo]) {
-      message.error("Conversion rates unavailable");
-      return;
+    if (isUpdating === "result") {
+      const amountStr = String(result);
+      if (/[^0-9.]/.test(amountStr)) {
+        message.error("Wrong type.");
+        return;
+      }
+      setAmount((result * rates[selectedTo]) / rates[selectedFrom]);
     }
-    setResult((amount * rates[selectedFrom]) / rates[selectedTo]);
   };
 
   const sFrom = (
@@ -127,12 +126,11 @@ const Converter = () => {
           <>
             <Row>
               <Col span={10}>
-                <InputNumber
+                <Input
                   value={amount}
                   onChange={(value) => {
-                    setAmount(value);
+                    setAmount(value.target.value);
                     setIsUpdating("amount");
-                    console.log(value);
                   }}
                   size="large"
                   style={{
@@ -152,10 +150,10 @@ const Converter = () => {
                 <span style={{ fontSize: "24px", color: "#1890ff" }}>⇄</span>
               </Col>
               <Col span={10}>
-                <InputNumber
+                <Input
                   value={result}
                   onChange={(value) => {
-                    setResult(value);
+                    setResult(value.target.value);
                     setIsUpdating("result");
                   }}
                   size="large"
